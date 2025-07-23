@@ -1,47 +1,35 @@
-import React from 'react';
-import { View, Text, Pressable, StatusBar } from 'react-native';
+import React, { useEffect } from 'react';
+import { View, Text, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import { redirectToDeliveryApp } from '../../services/linking';
+import { useAuthStore } from '../../stores/auth.store';
 
 export default function OnboardingSteps() {
   const router = useRouter();
+  const { riderData } = useAuthStore();
 
-  const handleStartNow = () => {
-    router.push('/Sections/work');
-  };
+  useEffect(() => {
+    const completeOnboarding = async () => {
+      try {
+        if (riderData) {
+          await redirectToDeliveryApp(riderData);
+        } else {
+          // Fallback if no rider data
+          router.replace('/auth/sign-up');
+        }
+      } catch (error) {
+        console.error('Onboarding error:', error);
+        router.replace('/auth/sign-up');
+      }
+    };
 
-  const handleProfile = () => {
-    router.push('/Sections/profile');
-  };
-
-  const handleKit = () => {
-    router.push('/Sections/kit');
-  };
+    completeOnboarding();
+  }, []);
 
   return (
-    <View className="flex-1 bg-white px-6 pt-12">
-      <StatusBar barStyle="dark-content" backgroundColor="transparent" translucent />
-      <View className="items-center mb-8">
-        <Text className="text-2xl font-bold mt-10 mb-2 text-center">Become a delivery partner in 3 easy steps!</Text>
-      </View>
-      <Pressable onPress={handleStartNow} className="bg-grey rounded-xl p-4 mt-10 mb-4 border border-orange-200 active:bg-primary-50">
-        <Text className="text-lg font-semibold mb-2">STEP 1</Text>
-        <Text className="text-xl font-bold mb-2">Work Settings</Text>
-        <Pressable
-          className="bg-orange-500 rounded-lg py-2 px-4 self-start active:bg-primary-50"
-          onPress={handleStartNow}
-        >
-          <Text className="text-white font-semibold">Start now</Text>
-        </Pressable>
-      </Pressable>
-      <Pressable onPress={handleProfile} className="bg-grey rounded-xl p-4 mt-5 mb-4 border border-orange-200 active:bg-primary-50">
-        <Text className="text-lg font-semibold mb-2">STEP 2</Text>
-        <Text className="text-xl font-bold mb-1">Profile</Text>
-        <Text className="text-gray-600">Upload Aadhar, PAN & Bank details</Text>
-      </Pressable>
-      <Pressable onPress={handleKit} className="bg-grey rounded-xl p-4 mt-5 border border-orange-200 active:bg-primary-50">
-        <Text className="text-lg font-semibold mb-2">STEP 3</Text>
-        <Text className="text-xl font-bold mb-1">Order Delivery Kit</Text>
-      </Pressable>
+    <View className="flex-1 justify-center items-center bg-white">
+      <ActivityIndicator size="large" />
+      <Text className="mt-4 text-lg">Redirecting to Delivery App...</Text>
     </View>
   );
-} 
+}
