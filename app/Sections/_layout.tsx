@@ -7,6 +7,7 @@ export default function Layout() {
       <Stack.Screen name="profile" />
       <Stack.Screen name="overview" />
       <Stack.Screen name="kit" />
+      <Stack.Screen name="settings" />
     </Stack>
   );
 }
